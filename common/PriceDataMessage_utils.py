@@ -85,6 +85,7 @@ PROPERTY_TYPES = collections.OrderedDict([
   ('time', dt.time),
   ('market', Market),
   ('ticker', Ticker),
+  ('epoch', float),
   ('bid', float),
   ('ask', float)]
 )

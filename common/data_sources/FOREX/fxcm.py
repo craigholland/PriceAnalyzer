@@ -1,5 +1,6 @@
 import datetime as dt
 import common.PriceDataMessage as PDM
+import common.time_utils as tu
 
 url = 'http://rates.fxcm.com/RatesXML'
 
@@ -20,6 +21,9 @@ def ConvertXMLtoPDM(market, etree_child_obj):
     pdm.ask = ask
     pdm.date = date
     pdm.time = time
+
+    timestamp = tu.Time((date, time), 'US/Pacific')
+    pdm.epoch = timestamp.asEpoch
 
     return pdm
 
