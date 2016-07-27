@@ -83,9 +83,10 @@ def _buildProperties_explicit(cls):
 PROPERTY_TYPES = collections.OrderedDict([
   ('date', dt.date),
   ('time', dt.time),
+  ('timezone', dt.tzinfo),
   ('market', Market),
   ('ticker', Ticker),
-  ('epoch', float),
+  ('utc_epoch', float),
   ('bid', float),
   ('ask', float)]
 )

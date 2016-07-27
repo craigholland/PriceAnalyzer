@@ -128,7 +128,6 @@ class PriceDataMessage(BM.BaseObject):
     else:
       return False
 
-
 PDMu._buildProperties(PriceDataMessage)
 
 def isPDM(obj):

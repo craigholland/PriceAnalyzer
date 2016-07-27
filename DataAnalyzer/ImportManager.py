@@ -84,21 +84,35 @@ class ImportManager(BM.BaseObject):
         path = self.GetSourcePath(market_name, source_name)
         return __import__(path, fromlist=source_name)
 
+  def _validateSourceObject(self, source_obj):
+    """Validates imported Source Objects."""
+
+    # A source is a module that contains one dict (SOURCE_MAP) and one function (ConvertXMLtoPDM) specific to
+    # that particular source.
+
+    return hasattr(source_obj, 'SOURCE_MAP') and hasattr(source_obj, 'ConvertXMLtoPDM')
+
+
   def StartImport(self):
     self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'Starting Data Import: {0}'.format(util.Timestamp()))
     for market in self.queues:
       self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'Preparing to import source data for market: {0}'.format(market))
       for source_name, source_obj in getattr(self.ImportQueue, market):
-        url, conversion_func = source_obj.url, source_obj.ConvertXMLtoPDM
-        self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'SRC Name: {0}; SRC URL: {1}'.format(source_name, url))
+        if self._validateSourceObject(source_obj):
+          src_map, conversion_func = source_obj.SOURCE_MAP, source_obj.ConvertXMLtoPDM
+          url = src_map['url']
 
-        raw_data = xm.GetXMLfromSource(url)
-        self.raw_data.append(raw_data)
-        self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'Raw Data Obtained from {0} ...Converting Data'.format(url))
+          self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'SRC Name: {0}; SRC URL: {1}'.format(source_name, url))
+          raw_data = xm.GetXMLfromSource(url)
+          self.raw_data.append(raw_data)
+          self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'Raw Data Obtained from {0} ...Converting Data'.format(url))
 
-        data_set = xm.IterateXML(market, raw_data, conversion_func)
-        self.transformed_data.extend(data_set)
-        self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'PDM Data Ready for {0}: Message count: {1}...'.format(market, len(data_set)))
+          data_set = xm.IterateXML(market, raw_data, conversion_func)
+          self.transformed_data.extend(data_set)
+          self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'PDM Data Ready for {0}: Message count: {1}...'.format(market, len(data_set)))
+        else:
+          self.ErrorLog.Add(self._ERRORLOG_KEY, 'Improperly Formatted Source File: {0}'.format(source_name))
+          self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'Ignoring Source File: {0}'.format(source_name))
 
       self.ActivityLog.Add(self._ACTIVITYLOG_KEY, 'Data Import Finished: {0}'.format(util.Timestamp()))
 

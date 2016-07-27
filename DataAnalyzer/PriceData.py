@@ -78,7 +78,8 @@ class PriceData(BM.BaseObject):
   def Add(self, pdm):
     bin = self.Filter(pdm)
     if bin:
-      bin.data.append(pdm)
+     if pdm not in bin.data:
+       bin.data.append(pdm)
 
   def Data(self, market_name, ticker_name):
     """Retrieve current data set for Market-ticker combo."""

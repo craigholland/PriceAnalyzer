@@ -3,10 +3,12 @@ import pytz
 import validations
 from dateutil import relativedelta as rd
 import math
+import time
 
 from dateutil.parser import parse
 
 LOCAL_TIMEZONE = 'US/Pacific'
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 class Time(object):
   utc = pytz.utc
@@ -171,52 +173,7 @@ class Time(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # if isinstance(inp, tuple) and len(inp)==2:
-    #   for item in inp:
-    #     if isinstance(item, datetime.date):
-    #       self._date = item
-    #     if isinstance(item, datetime.time):
-    #       self._time = item
-    # elif isinstance(inp, type(datetime.datetime.now())):
-    #   if inp.tzinfo is not None and inp.tzinfo != self._tz:
-    #     # Convert inp to self._tz
-    #     inp = inp.astimezone(self._tz)
-    #
-    #   self._date = inp.date()
-    #   self._time = inp.time()
-    # else:
-    #   try:
-    #     self.ParseInput(parse(inp))
-    #   except:
-    #     self.ParseInput(self.local_tz.localize(datetime.datetime.now()).astimezone(self._tz))
-
-
-
-
-
-
-
-
-
-
-
-
+def ConvertEpoch(epoch):
+  if validations.isNumeric(epoch):
+    return pytz.utc.localize(parse(time.strftime(DATETIME_FORMAT, time.gmtime(epoch))))
+  return None
